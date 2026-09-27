@@ -10,8 +10,7 @@
   "include": [
     "App.tsx",
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "expo-env.d.ts"
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

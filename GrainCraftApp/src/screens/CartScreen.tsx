@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { placeOrder, removeFromCart } from '../redux/slices/cartSlice';
 import theme from '../theme';
 import Text from '../components/ThemedText';
+import AppScreen from '../components/ui/AppScreen';
+import AppCard from '../components/ui/AppCard';
+import PrimaryButton from '../components/ui/PrimaryButton';
+import SectionHeading from '../components/ui/SectionHeading';
+import NoticeBanner from '../components/ui/NoticeBanner';
+import EmptyState from '../components/ui/EmptyState';
+import AddressOption from '../components/ui/AddressOption';
 
 export default function CartScreen() {
   const dispatch = useAppDispatch();
@@ -22,16 +29,13 @@ export default function CartScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.banner}>
-        <Text style={styles.bannerTitle}>⚙️ Milled-to-Order Dispatch</Text>
-        <Text style={styles.bannerDescription}>Stone mill #4 idle & preheated for your batch</Text>
-      </View>
+    <AppScreen>
+      <NoticeBanner title="⚙️ Milled-to-Order Dispatch" description="Stone mill #4 idle & preheated for your batch" tone="success" />
 
-      <Text style={styles.title}>My Grain Basket ({cartItems.length} items)</Text>
+      <SectionHeading title={`My Grain Basket (${cartItems.length} items)`} />
 
       {cartItems.map(item => (
-        <View key={item.id} style={styles.cartCard}>
+        <AppCard key={item.id} style={styles.cartCard}>
           <View style={styles.itemDetails}>
             <Text style={styles.itemName}>{item.name}</Text>
             <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
@@ -40,18 +44,16 @@ export default function CartScreen() {
           <TouchableOpacity onPress={() => dispatch(removeFromCart(item.id))}>
             <Text style={styles.removeText}>Remove</Text>
           </TouchableOpacity>
-        </View>
+        </AppCard>
       ))}
 
-      {cartItems.length === 0 && <Text style={styles.emptyText}>Your grain basket is empty.</Text>}
+      {cartItems.length === 0 && <EmptyState message="Your grain basket is empty." />}
 
       {cartItems.length > 0 && (
-        <View style={styles.checkoutBox}>
+        <AppCard variant="warm" style={styles.checkoutBox}>
           <Text style={styles.addressTitle}>Deliver To Hub / Address:</Text>
           {addresses.map(address => (
-            <TouchableOpacity key={address.id} style={[styles.addrChip, selectedAddr === address.address && styles.selectedAddr]} onPress={() => setSelectedAddr(address.address)}>
-              <Text style={[styles.addressLabel, selectedAddr === address.address && styles.selectedAddressLabel]}>📍 {address.address}</Text>
-            </TouchableOpacity>
+            <AddressOption key={address.id} address={address} selected={selectedAddr === address.address} onSelect={selected => setSelectedAddr(selected.address)} />
           ))}
 
           <View style={styles.totalRow}>
@@ -59,37 +61,23 @@ export default function CartScreen() {
             <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
           </View>
 
-          <TouchableOpacity style={styles.btn} onPress={handleCheckout}>
-            <Text style={styles.btnTxt}>Place Fresh Milling Order</Text>
-          </TouchableOpacity>
-        </View>
+          <PrimaryButton title="Place Fresh Milling Order" onPress={handleCheckout} />
+        </AppCard>
       )}
-    </ScrollView>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 15, backgroundColor: theme.colors.background, paddingBottom: 30 },
-  banner: { backgroundColor: theme.colors.surfaceTint, padding: 10, borderRadius: theme.components.button.borderRadius, marginBottom: 15 },
-  bannerTitle: { fontSize: theme.typography.fontSize.label, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.success },
-  bannerDescription: { fontSize: theme.typography.fontSize.small, color: theme.colors.detail, marginTop: 2 },
-  title: { fontSize: theme.typography.fontSize.heading, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.text, marginBottom: 12 },
-  cartCard: { backgroundColor: theme.colors.surface, borderRadius: 10, padding: 12, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: theme.components.card.borderWidth, borderColor: theme.colors.border },
+  cartCard: { padding: 12, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemDetails: { flex: 1 },
   itemName: { fontSize: theme.typography.fontSize.bodyLarge, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.text },
   itemSubtitle: { fontSize: theme.typography.fontSize.small, color: theme.colors.textSecondary, marginVertical: 3 },
   itemPrice: { fontSize: theme.typography.fontSize.body, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.primary },
   removeText: { color: theme.colors.error, fontWeight: theme.typography.fontWeight.bold },
-  emptyText: { textAlign: 'center', color: theme.colors.textSubtle, marginVertical: 30 },
-  checkoutBox: { backgroundColor: theme.colors.surfaceWarm, padding: 15, borderRadius: theme.components.card.borderRadius, marginTop: 15, borderWidth: theme.components.card.borderWidth, borderColor: theme.colors.border },
+  checkoutBox: { marginTop: 15 },
   addressTitle: { fontSize: theme.typography.fontSize.bodySmall, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.text, marginBottom: 6 },
-  addrChip: { padding: 8, backgroundColor: theme.colors.surface, borderRadius: theme.components.badge.borderRadius, marginBottom: 6, borderWidth: theme.components.input.borderWidth, borderColor: theme.colors.borderStrong },
-  selectedAddr: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-  addressLabel: { color: theme.colors.detail, fontSize: theme.typography.fontSize.small },
-  selectedAddressLabel: { color: theme.colors.textContrast },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 15 },
   totalLabel: { fontSize: theme.typography.fontSize.subtitle, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.text },
   totalAmount: { fontSize: theme.typography.fontSize.subtitle, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.primary },
-  btn: { backgroundColor: theme.colors.primary, padding: 15, borderRadius: theme.components.button.borderRadius, alignItems: 'center' },
-  btnTxt: { color: theme.colors.textOnPrimary, fontWeight: theme.typography.fontWeight.bold, fontSize: theme.typography.fontSize.bodyLarge },
 });

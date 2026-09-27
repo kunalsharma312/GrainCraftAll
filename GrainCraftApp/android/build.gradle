@@ -1,5 +1,41 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+def getNodeCmd() {
+  def configuredNode = providers.gradleProperty("NODE_BINARY").orNull
+  if (configuredNode && new File(configuredNode).canExecute()) return configuredNode
+
+  def nodeCmd = "node"
+  try {
+    def proc = [nodeCmd, "-v"].execute()
+    proc.waitFor()
+    if (proc.exitValue() == 0) return nodeCmd
+  } catch (Exception ignored) {}
+
+  def nvmDir = new File(System.getProperty("user.home") + "/.nvm/versions/node")
+  def latestNvmNode = nvmDir.exists() ? nvmDir.listFiles()?.sort()?.last()?.getAbsolutePath() + "/bin/node" : null
+
+  def candidatePaths = [
+    "/opt/homebrew/bin/node",
+    "/usr/local/bin/node",
+    latestNvmNode,
+    System.getProperty("user.home") + "/.fnm/current/bin/node",
+    System.getProperty("user.home") + "/.asdf/shims/node",
+    System.getProperty("user.home") + "/.volta/bin/node"
+  ]
+  for (path in candidatePaths) {
+    if (path && new File(path).exists()) return path
+  }
+  return nodeCmd
+}
+
+def nodeCmd = getNodeCmd()
+def nodeDir = new File(nodeCmd).getParent()
+def nodeEnvMap = [:] + System.getenv()
+if (nodeDir && !(nodeEnvMap.get("PATH") ?: "").contains(nodeDir)) {
+  nodeEnvMap.put("PATH", nodeDir + File.pathSeparator + (nodeEnvMap.get("PATH") ?: ""))
+}
+def nodeEnv = nodeEnvMap.collect { k, v -> "${k}=${v}" }
+
 buildscript {
     ext {
         buildToolsVersion = findProperty('android.buildToolsVersion') ?: '34.0.0'
@@ -27,11 +63,11 @@ allprojects {
     repositories {
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url(new File(['node', '--print', "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), '../android'))
+            url(new File([nodeCmd, '--print', "require.resolve('react-native/package.json')"].execute(nodeEnv, rootDir).text.trim(), '../android'))
         }
         maven {
             // Android JSC is installed from npm
-            url(new File(['node', '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), '../dist'))
+            url(new File([nodeCmd, '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(nodeEnv, rootDir).text.trim(), '../dist'))
         }
 
         google()

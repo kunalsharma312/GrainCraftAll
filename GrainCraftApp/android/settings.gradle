@@ -1,10 +1,65 @@
 pluginManagement {
+  if (System.getenv("ANDROID_USER_HOME") && System.getenv("ANDROID_PREFS_ROOT")) {
+    try {
+      def peClass = Class.forName("java.lang.ProcessEnvironment")
+      ["theEnvironment", "theUnmodifiableEnvironmentMap"].each { fieldName ->
+        try {
+          def field = peClass.getDeclaredField(fieldName)
+          field.setAccessible(true)
+          def map = field.get(null)
+          if (map != null) {
+            map.remove("ANDROID_PREFS_ROOT")
+          }
+        } catch (Exception ignored) {}
+      }
+    } catch (Exception ignored) {}
+  }
+
+  def getNodeCmd = {
+    def configuredNode = providers.gradleProperty("NODE_BINARY").orNull
+    if (configuredNode && new File(configuredNode).canExecute()) return configuredNode
+
+    def nodeCmd = "node"
+    try {
+      def proc = [nodeCmd, "-v"].execute()
+      proc.waitFor()
+      if (proc.exitValue() == 0) return nodeCmd
+    } catch (Exception ignored) {}
+
+    def nvmDir = new File(System.getProperty("user.home") + "/.nvm/versions/node")
+    def latestNvmNode = nvmDir.exists() ? nvmDir.listFiles()?.sort()?.last()?.getAbsolutePath() + "/bin/node" : null
+
+    def candidatePaths = [
+      "/opt/homebrew/bin/node",
+      "/usr/local/bin/node",
+      latestNvmNode,
+      System.getProperty("user.home") + "/.fnm/current/bin/node",
+      System.getProperty("user.home") + "/.asdf/shims/node",
+      System.getProperty("user.home") + "/.volta/bin/node"
+    ]
+    for (path in candidatePaths) {
+      if (path && new File(path).exists()) return path
+    }
+    return nodeCmd
+  }
+
+  def nodeCmd = getNodeCmd()
+  def nodeDir = new File(nodeCmd).getParent()
+  def nodeEnvMap = [:] + System.getenv()
+  if (nodeDir && !(nodeEnvMap.get("PATH") ?: "").contains(nodeDir)) {
+    nodeEnvMap.put("PATH", nodeDir + File.pathSeparator + (nodeEnvMap.get("PATH") ?: ""))
+  }
+  def nodeEnv = nodeEnvMap.collect { k, v -> "${k}=${v}" }
+
   def version = providers.exec {
-    commandLine("node", "-e", "console.log(require('react-native/package.json').version);")
+    commandLine(nodeCmd, "-e", "console.log(require('react-native/package.json').version);")
+    if (nodeEnvMap.get("PATH")) {
+      environment("PATH", nodeEnvMap.get("PATH"))
+    }
   }.standardOutput.asText.get().trim()
   def (_, reactNativeMinor, reactNativePatch) = version.split("-")[0].tokenize('.').collect { it.toInteger() }
 
-  includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json')"].execute(null, rootDir).text.trim()).getParentFile().toString())
+  includeBuild(new File([nodeCmd, "--print", "require.resolve('@react-native/gradle-plugin/package.json')"].execute(nodeEnv, rootDir).text.trim()).getParentFile().toString())
   if(reactNativeMinor == 74 && reactNativePatch <= 3){
     includeBuild("react-settings-plugin")
   }
@@ -12,9 +67,64 @@ pluginManagement {
 
 plugins { id("com.facebook.react.settings") }
 
-def getRNMinorVersion() {
+if (System.getenv("ANDROID_USER_HOME") && System.getenv("ANDROID_PREFS_ROOT")) {
+  try {
+    def peClass = Class.forName("java.lang.ProcessEnvironment")
+    ["theEnvironment", "theUnmodifiableEnvironmentMap"].each { fieldName ->
+      try {
+        def field = peClass.getDeclaredField(fieldName)
+        field.setAccessible(true)
+        def map = field.get(null)
+        if (map != null) {
+          map.remove("ANDROID_PREFS_ROOT")
+        }
+      } catch (Exception ignored) {}
+    }
+  } catch (Exception ignored) {}
+}
+
+def getNodeCmd() {
+  def configuredNode = providers.gradleProperty("NODE_BINARY").orNull
+  if (configuredNode && new File(configuredNode).canExecute()) return configuredNode
+
+  def nodeCmd = "node"
+  try {
+    def proc = [nodeCmd, "-v"].execute()
+    proc.waitFor()
+    if (proc.exitValue() == 0) return nodeCmd
+  } catch (Exception ignored) {}
+
+  def nvmDir = new File(System.getProperty("user.home") + "/.nvm/versions/node")
+  def latestNvmNode = nvmDir.exists() ? nvmDir.listFiles()?.sort()?.last()?.getAbsolutePath() + "/bin/node" : null
+
+  def candidatePaths = [
+    "/opt/homebrew/bin/node",
+    "/usr/local/bin/node",
+    latestNvmNode,
+    System.getProperty("user.home") + "/.fnm/current/bin/node",
+    System.getProperty("user.home") + "/.asdf/shims/node",
+    System.getProperty("user.home") + "/.volta/bin/node"
+  ]
+  for (path in candidatePaths) {
+    if (path && new File(path).exists()) return path
+  }
+  return nodeCmd
+}
+
+def nodeCmd = getNodeCmd()
+def nodeDir = new File(nodeCmd).getParent()
+def nodeEnvMap = [:] + System.getenv()
+if (nodeDir && !(nodeEnvMap.get("PATH") ?: "").contains(nodeDir)) {
+  nodeEnvMap.put("PATH", nodeDir + File.pathSeparator + (nodeEnvMap.get("PATH") ?: ""))
+}
+def nodeEnv = nodeEnvMap.collect { k, v -> "${k}=${v}" }
+
+def getRNMinorVersion(nodeCmd, nodeEnvMap) {
   def version = providers.exec {
-    commandLine("node", "-e", "console.log(require('react-native/package.json').version);")
+    commandLine(nodeCmd, "-e", "console.log(require('react-native/package.json').version);")
+    if (nodeEnvMap.get("PATH")) {
+      environment("PATH", nodeEnvMap.get("PATH"))
+    }
   }.standardOutput.asText.get().trim()
 
   def coreVersion = version.split("-")[0]
@@ -23,12 +133,12 @@ def getRNMinorVersion() {
   return minor
 }
 
-if (getRNMinorVersion() >= 75) {
+if (getRNMinorVersion(nodeCmd, nodeEnvMap) >= 75) {
   extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
     if (System.getenv('EXPO_UNSTABLE_CORE_AUTOLINKING') == '1') {
       println('\u001B[32mUsing expo-modules-autolinking as core autolinking source\u001B[0m')
       def command = [
-        'node',
+        nodeCmd,
         '--no-warnings',
         '--eval',
         'require(require.resolve(\'expo-modules-autolinking\', { paths: [require.resolve(\'expo/package.json\')] }))(process.argv.slice(1))',
@@ -39,7 +149,14 @@ if (getRNMinorVersion() >= 75) {
       ].toList()
       ex.autolinkLibrariesFromCommand(command)
     } else {
-      ex.autolinkLibrariesFromCommand()
+      def command = [
+        nodeCmd,
+        '--no-warnings',
+        '--eval',
+        'require(\'@react-native-community/cli\').run()',
+        'config'
+      ].toList()
+      ex.autolinkLibrariesFromCommand(command)
     }
   }
 }
@@ -49,18 +166,18 @@ rootProject.name = 'GrainCraft'
 dependencyResolutionManagement {
   versionCatalogs {
     reactAndroidLibs {
-      from(files(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../gradle/libs.versions.toml")))
+      from(files(new File([nodeCmd, "--print", "require.resolve('react-native/package.json')"].execute(nodeEnv, rootDir).text.trim(), "../gradle/libs.versions.toml")))
     }
   }
 }
 
-apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
+apply from: new File([nodeCmd, "--print", "require.resolve('expo/package.json')"].execute(nodeEnv, rootDir).text.trim(), "../scripts/autolinking.gradle");
 useExpoModules()
 
-if (getRNMinorVersion() < 75) {
-  apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), "../native_modules.gradle");
+if (getRNMinorVersion(nodeCmd, nodeEnvMap) < 75) {
+  apply from: new File([nodeCmd, "--print", "require.resolve('@react-native-community/cli-platform-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(nodeEnv, rootDir).text.trim(), "../native_modules.gradle");
   applyNativeModulesSettingsGradle(settings)
 }
 
 include ':app'
-includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile())
+includeBuild(new File([nodeCmd, "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(nodeEnv, rootDir).text.trim()).getParentFile())
