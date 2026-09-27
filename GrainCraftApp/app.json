@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "GrainCraft",
+    "slug": "graincraftapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "android": {
+      "package": "com.graincraftapp.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "com.graincraftapp.mobile"
+    }
+  }
+}
