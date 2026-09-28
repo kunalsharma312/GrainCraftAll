@@ -1,17 +1,30 @@
 import mockData from '../assets/mockData.json';
 
-export type UserProfile = typeof mockData.user;
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  photo?: string;
+}
 export type DiscoverItem = (typeof mockData.discoverItems)[number];
 export type BlendIngredient = (typeof mockData.blendIngredients)[number];
 
 export interface Address {
   id: string;
-  address: string;
+  fullName: string;
+  phone: string;
+  houseNumber: string;
+  street: string;
+  landmark: string;
+  pincode: string;
+  city: string;
+  state: string;
 }
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: UserProfile;
+  isGuest: boolean;
+  user: UserProfile | null;
   addresses: Address[];
 }
 
