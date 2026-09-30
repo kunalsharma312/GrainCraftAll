@@ -28,6 +28,10 @@
     "detail": "#555555",
     "success": "#2E7D32",
     "successBright": "#008000",
+    "successLight": "#E6F4EA",
+    "primaryLight": "#F1E5DA",
+    "info": "#1565C0",
+    "infoLight": "#E3F0FB",
     "error": "#C62828",
     "gold": "#FFD700",
     "overlay": "rgba(0,0,0,0.15)"

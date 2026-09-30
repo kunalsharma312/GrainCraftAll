@@ -1,4 +1,162 @@
 {
+  "grains": [
+    {
+      "id": "w-mp-sharbati",
+      "name": "MP Sharbati Wheat Atta",
+      "nameHindi": "एमपी शरबती गेहूं आटा",
+      "subtitle": "Premium soft & sweet • मुलायम मीठी रोटी",
+      "price": 95,
+      "unit": "kg",
+      "state": "Madhya Pradesh",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20flour.jpg?width=500"
+    },
+    {
+      "id": "w-mp-lokwan",
+      "name": "MP Lokwan Wheat Atta",
+      "nameHindi": "एमपी लोकवन गेहूं आटा",
+      "subtitle": "Everyday quality • रोज़ की रोटी",
+      "price": 48,
+      "unit": "kg",
+      "state": "Madhya Pradesh",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20flour%2001.jpg?width=500"
+    },
+    {
+      "id": "w-punjab",
+      "name": "Punjab Wheat Atta",
+      "nameHindi": "पंजाब गेहूं आटा",
+      "subtitle": "Strong gluten • फूली रोटी",
+      "price": 52,
+      "unit": "kg",
+      "state": "Punjab",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20close-up.JPG?width=500"
+    },
+    {
+      "id": "w-rajasthan",
+      "name": "Rajasthan Desi Wheat Atta",
+      "nameHindi": "राजस्थान देसी गेहूं आटा",
+      "subtitle": "Local hardy wheat • देसी स्वाद",
+      "price": 46,
+      "unit": "kg",
+      "state": "Rajasthan",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Triticum%20aestivum%20grains.jpg?width=500"
+    },
+    {
+      "id": "w-up",
+      "name": "UP Wheat Atta",
+      "nameHindi": "यूपी गेहूं आटा",
+      "subtitle": "Value everyday atta • किफ़ायती",
+      "price": 42,
+      "unit": "kg",
+      "state": "Uttar Pradesh",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20and%20wheat%20based%20foods.jpg?width=500"
+    },
+    {
+      "id": "g3",
+      "name": "Multigrain Atta",
+      "nameHindi": "मल्टीग्रेन आटा",
+      "subtitle": "7 grains mix • सेहतमंद",
+      "price": 70,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Various%20grains.jpg?width=500"
+    },
+    {
+      "id": "g4",
+      "name": "Kuttu Atta (Buckwheat)",
+      "nameHindi": "कुट्टू का आटा",
+      "subtitle": "Vrat / fasting • व्रत के लिए",
+      "price": 120,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Buckwheat-groats.jpg?width=500"
+    },
+    {
+      "id": "g5",
+      "name": "Besan (Gram Flour)",
+      "nameHindi": "बेसन",
+      "subtitle": "Chana dal flour • पकोड़े व कढ़ी",
+      "price": 90,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Besan.JPG?width=500"
+    },
+    {
+      "id": "g6",
+      "name": "Bajra (Pearl Millet)",
+      "nameHindi": "बाजरा",
+      "subtitle": "Iron rich • सर्दियों की रोटी",
+      "price": 60,
+      "unit": "kg",
+      "category": "millet",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pearl%20millet.jpg?width=500"
+    },
+    {
+      "id": "g7",
+      "name": "Jowar (Sorghum)",
+      "nameHindi": "ज्वार",
+      "subtitle": "Gluten free • हल्की व सुपाच्य",
+      "price": 65,
+      "unit": "kg",
+      "category": "millet",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sorghum.jpg?width=500"
+    },
+    {
+      "id": "g8",
+      "name": "Ragi (Finger Millet)",
+      "nameHindi": "रागी (मंडुआ)",
+      "subtitle": "High calcium • कैल्शियम भरपूर",
+      "price": 75,
+      "unit": "kg",
+      "category": "millet",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Finger%20Millet.JPG?width=500"
+    },
+    {
+      "id": "g9",
+      "name": "Makki Atta (Maize)",
+      "nameHindi": "मक्की का आटा",
+      "subtitle": "Makki di roti • सरसों दे साग नाल",
+      "price": 50,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Cornmeal.jpg?width=500"
+    },
+    {
+      "id": "g10",
+      "name": "Rice Flour",
+      "nameHindi": "चावल का आटा",
+      "subtitle": "For dosa, idli • दक्षिण भारतीय",
+      "price": 55,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20flour.jpg?width=500"
+    },
+    {
+      "id": "g11",
+      "name": "Sooji / Rava (Semolina)",
+      "nameHindi": "सूजी / रवा",
+      "subtitle": "Upma, halwa • नाश्ते के लिए",
+      "price": 48,
+      "unit": "kg",
+      "category": "flour",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Semolina.jpg?width=500"
+    },
+    {
+      "id": "g12",
+      "name": "Khapli Emmer Wheat Atta",
+      "nameHindi": "खपली गेहूं आटा",
+      "subtitle": "Ancient low-gluten • देसी गेहूं",
+      "price": 110,
+      "unit": "kg",
+      "state": "Madhya Pradesh",
+      "category": "wheat",
+      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Emmer.jpg?width=500"
+    }
+  ],
   "user": {
     "name": "Elena Rostova",
     "tier": "Master Guild Miller Tier",
@@ -32,11 +190,7 @@
       "name": "Multigrain Classic 7-Grain Preset",
       "subtitle": "1 kg pouch \u2022 Texture: Fine Silk",
       "price": 4.8,
-      "components": [
-        "Khapli Emmer",
-        "Sprouted Ragi",
-        "Rolled Oats"
-      ],
+      "components": ["Khapli Emmer", "Sprouted Ragi", "Rolled Oats"],
       "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999"
     }
   ],

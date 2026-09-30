@@ -5,6 +5,7 @@ export interface UserProfile {
   name: string;
   email: string;
   photo?: string;
+  phone?: string;
 }
 export type DiscoverItem = (typeof mockData.discoverItems)[number];
 export type BlendIngredient = (typeof mockData.blendIngredients)[number];
@@ -50,9 +51,19 @@ export interface Order {
   title: string;
   status: string;
   millInfo: string;
-  delivery: string;
+  delivery: {
+    type?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    phone?: string;
+  };
   total: number;
   items: OrderItem[];
+  paymentMethod?: string;
+  transactionId?: string;
+  estimatedDelivery?: string;
 }
 
 export interface CartState {
@@ -63,6 +74,7 @@ export interface CartState {
 export type RootStackParamList = {
   Auth: undefined;
   MainApp: undefined;
+  OrderConfirmation: { order: Order };
 }
 
 export type MainTabParamList = {
