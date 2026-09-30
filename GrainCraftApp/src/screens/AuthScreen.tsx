@@ -16,7 +16,6 @@ WebBrowser.maybeCompleteAuthSession();
 const googleClientIds = {
   androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
   iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 };
 
 function GoogleSignInButton() {
@@ -66,7 +65,7 @@ export default function AuthScreen() {
     ? googleClientIds.androidClientId
     : Platform.OS === 'ios'
       ? googleClientIds.iosClientId
-      : googleClientIds.webClientId;
+      : undefined;
 
   return (
     <AppScreen contentStyle={styles.container}>
@@ -85,7 +84,7 @@ export default function AuthScreen() {
         {platformClientId ? (
           <GoogleSignInButton />
         ) : (
-          <Text style={styles.setupNote}>Google sign-in is not configured for this platform. Add its OAuth client ID to your .env file and rebuild the app.</Text>
+          <Text style={styles.setupNote}>{Platform.OS === 'web' ? 'Google sign-in is available in the GrainCraft mobile app.' : 'Google sign-in is not configured for this platform. Add its OAuth client ID to your .env file and rebuild the app.'}</Text>
         )}
         <PrimaryButton title="Skip for now" onPress={() => dispatch(continueAsGuest())} variant="text" style={styles.skipBtn} />
         <Text style={styles.privacyNote}>Your Google name, email, and profile photo are used to set up your account. We’ll ask for delivery details when you place your first order.</Text>
