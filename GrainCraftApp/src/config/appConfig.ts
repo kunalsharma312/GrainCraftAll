@@ -119,7 +119,7 @@ export const appConfig: AppConfig = {
     title: 'Chakki-fresh atta,\ndelivered to your door',
     subtitle: 'Heritage grains from MP, Punjab & Rajasthan',
     image:
-      'https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20and%20wheat%20based%20foods.jpg?width=800',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Wheat_flour.jpg/500px-Wheat_flour.jpg',
   },
 
   colors: {

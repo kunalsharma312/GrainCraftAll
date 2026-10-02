@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   TouchableOpacity,
   Modal,
   TextInput,
@@ -25,8 +24,10 @@ import {
   clearCart,
 } from '../redux/slices/cartSlice';
 import mockData from '../assets/mockData.json';
+import grainImageFallbacks from '../assets/grainImageFallbacks';
 import { appConfig } from '../config/appConfig';
 import { featureFlags } from '../config/featureFlags';
+import RemoteImageWithFallback from '../components/RemoteImageWithFallback';
 import hapticsService from '../services/hapticsService';
 import orderEmailService, { SimpleOrder } from '../services/orderEmailService';
 
@@ -229,7 +230,12 @@ export default function SimpleHomeScreen() {
     return (
       <View style={[styles.card, inCart && styles.cardActive]}>
         <View>
-          <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
+          <RemoteImageWithFallback
+            uri={item.image}
+            fallbackSource={grainImageFallbacks[item.id] ?? grainImageFallbacks['w-mp-sharbati']}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
           <View style={styles.imageScrim} />
           {/* Veg mark - grains are always veg, adds a familiar Indian-grocery cue */}
           <View style={styles.vegMark}>
@@ -337,8 +343,9 @@ export default function SimpleHomeScreen() {
           <View>
             {/* Featured hero card */}
             <View style={styles.featuredCard}>
-              <Image
-                source={{ uri: appConfig.hero.image }}
+              <RemoteImageWithFallback
+                uri={appConfig.hero.image}
+                fallbackSource={grainImageFallbacks['w-mp-sharbati']}
                 style={styles.featuredImage}
                 resizeMode="cover"
               />

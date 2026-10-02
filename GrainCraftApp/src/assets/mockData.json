@@ -9,7 +9,7 @@
       "unit": "kg",
       "state": "Madhya Pradesh",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20flour.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Wheat_flour.jpg/500px-Wheat_flour.jpg"
     },
     {
       "id": "w-mp-lokwan",
@@ -20,7 +20,7 @@
       "unit": "kg",
       "state": "Madhya Pradesh",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20flour%2001.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Whole_wheat_grain_flour_being_scooped.jpg/500px-Whole_wheat_grain_flour_being_scooped.jpg"
     },
     {
       "id": "w-punjab",
@@ -31,7 +31,7 @@
       "unit": "kg",
       "state": "Punjab",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20close-up.JPG?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Wheat_close-up.JPG/500px-Wheat_close-up.JPG"
     },
     {
       "id": "w-rajasthan",
@@ -42,7 +42,7 @@
       "unit": "kg",
       "state": "Rajasthan",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Triticum%20aestivum%20grains.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Mixed_Grains_%285662575503%29.jpg/500px-Mixed_Grains_%285662575503%29.jpg"
     },
     {
       "id": "w-up",
@@ -53,7 +53,7 @@
       "unit": "kg",
       "state": "Uttar Pradesh",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20and%20wheat%20based%20foods.jpg?width=500"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/1/11/Wheat-flour.jpg"
     },
     {
       "id": "g3",
@@ -63,7 +63,7 @@
       "price": 70,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Various%20grains.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Mixed_Grains_%285662575503%29.jpg/500px-Mixed_Grains_%285662575503%29.jpg"
     },
     {
       "id": "g4",
@@ -73,7 +73,7 @@
       "price": 120,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Buckwheat-groats.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Buckwheat_and_products_from_it_01.jpg/500px-Buckwheat_and_products_from_it_01.jpg"
     },
     {
       "id": "g5",
@@ -83,7 +83,7 @@
       "price": 90,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Besan.JPG?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Gram_flour_Chilla_%28Besan_ka_Cheela%29.JPG/500px-Gram_flour_Chilla_%28Besan_ka_Cheela%29.JPG"
     },
     {
       "id": "g6",
@@ -93,7 +93,7 @@
       "price": 60,
       "unit": "kg",
       "category": "millet",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pearl%20millet.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Grain_millet%2C_early_grain_fill%2C_Tifton%2C_7-3-02.jpg/500px-Grain_millet%2C_early_grain_fill%2C_Tifton%2C_7-3-02.jpg"
     },
     {
       "id": "g7",
@@ -103,7 +103,7 @@
       "price": 65,
       "unit": "kg",
       "category": "millet",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sorghum.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Women_fanning_Sorghum_seeds.png/500px-Women_fanning_Sorghum_seeds.png"
     },
     {
       "id": "g8",
@@ -113,7 +113,7 @@
       "price": 75,
       "unit": "kg",
       "category": "millet",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Finger%20Millet.JPG?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Finger_Millet_Seed.jpg/500px-Finger_Millet_Seed.jpg"
     },
     {
       "id": "g9",
@@ -123,7 +123,7 @@
       "price": 50,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Cornmeal.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Whole_wheat_grain_flour_being_scooped.jpg/500px-Whole_wheat_grain_flour_being_scooped.jpg"
     },
     {
       "id": "g10",
@@ -133,7 +133,7 @@
       "price": 55,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20flour.jpg?width=500"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/1/11/Wheat-flour.jpg"
     },
     {
       "id": "g11",
@@ -143,7 +143,7 @@
       "price": 48,
       "unit": "kg",
       "category": "flour",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Semolina.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Whole_wheat_grain_flour_being_scooped.jpg/500px-Whole_wheat_grain_flour_being_scooped.jpg"
     },
     {
       "id": "g12",
@@ -154,7 +154,7 @@
       "unit": "kg",
       "state": "Madhya Pradesh",
       "category": "wheat",
-      "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Emmer.jpg?width=500"
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Wheat_close-up.JPG/500px-Wheat_close-up.JPG"
     }
   ],
   "user": {

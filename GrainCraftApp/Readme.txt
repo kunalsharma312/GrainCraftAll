@@ -9,7 +9,5 @@ Google sign-in setup
 The first sign-in reads the Google profile name, email, and photo. Sign-in state and saved delivery addresses are stored on the device. Phone and delivery details are collected at checkout, not from Google.
 
 
-
-
 // Get Google OAuth ID
 // https://console.cloud.google.com/auth/clients?chat=true&project=learningmaps-290110
