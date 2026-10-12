@@ -105,10 +105,11 @@ EmailJS sends email directly from the app using a public key. Free tier covers
 EXPO_PUBLIC_EMAILJS_SERVICE_ID=service_xxxxxxx
 EXPO_PUBLIC_EMAILJS_TEMPLATE_ID=template_xxxxxxx
 EXPO_PUBLIC_EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxxx
-EXPO_PUBLIC_SHOP_OWNER_EMAIL=you@yourshop.com
 ```
 
-Set `ORDER_DELIVERY: 'email'` (default). Done — orders now land in your inbox.
+The order recipient is set to `graincraftinfo@gmail.com` in `src/services/orderEmailService.ts`.
+Set `ORDER_DELIVERY: 'email'` (default). EmailJS service, template, and public key
+must still be configured before orders can be delivered.
 
 > Alternatives with the same "no backend" idea: **Web3Forms** or **Formspree**.
 > To use one, point `ORDER_DELIVERY` to `'api'` and set `EXPO_PUBLIC_ORDER_API_URL`

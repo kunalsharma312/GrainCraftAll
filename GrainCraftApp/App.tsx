@@ -5,19 +5,21 @@ import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { store } from './src/redux/store';
-import { restoreSession } from './src/redux/slices/authSlice';
+import { restoreSession, setLocation } from './src/redux/slices/authSlice';
 import { restoreCart } from './src/redux/slices/cartSlice';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { SplashScreen } from './src/components/SplashScreen';
 import { cartService } from './src/services/cartService';
 import { cacheService } from './src/services/cacheService';
 import { analyticsService } from './src/services/analyticsService';
+import { locationService } from './src/services/locationService';
 import notificationService from './src/services/notificationService';
 import { featureFlags } from './src/config/featureFlags';
 import SimpleHomeScreen from './src/screens/SimpleHomeScreen';
 import theme from './src/theme';
 
 const AUTH_STORAGE_KEY = 'graincraft.auth-session.v1';
+const LOCATION_STORAGE_KEY = 'graincraft.location.v1';
 
 function AppContent() {
   const [isReady, setIsReady] = useState(false);
@@ -42,6 +44,26 @@ function AppContent() {
         const savedCart = await cartService.loadCart();
         if (savedCart && active) {
           store.dispatch(restoreCart(savedCart));
+        }
+
+        // Detect and restore location
+        if (active) {
+          try {
+            const savedLocation = await AsyncStorage.getItem(LOCATION_STORAGE_KEY);
+            if (savedLocation) {
+              const locationData = JSON.parse(savedLocation);
+              store.dispatch(setLocation(locationData));
+            }
+
+            // Get current location (non-blocking)
+            const result = await locationService.getCurrentLocation();
+            if (active && !('code' in result)) {
+              store.dispatch(setLocation(result));
+              await AsyncStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(result));
+            }
+          } catch (error) {
+            console.error('Error detecting location:', error);
+          }
         }
 
         // Clear expired cache
@@ -86,7 +108,7 @@ function AppContent() {
     if (!isReady) return;
 
     const unsubscribe = store.subscribe(() => {
-      const { user, addresses, isGuest } = store.getState().auth;
+      const { user, addresses, isGuest, location, mobilePhone } = store.getState().auth;
       const { items: cartItems } = store.getState().cart;
 
       // Save user session
@@ -95,8 +117,13 @@ function AppContent() {
       } else {
         AsyncStorage.setItem(
           AUTH_STORAGE_KEY,
-          JSON.stringify({ user, addresses, isGuest: false })
+          JSON.stringify({ user, addresses, isGuest: false, location, mobilePhone })
         ).catch(() => undefined);
+      }
+
+      // Save location
+      if (location) {
+        AsyncStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(location)).catch(() => undefined);
       }
 
       // Save cart

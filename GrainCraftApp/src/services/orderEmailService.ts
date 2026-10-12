@@ -10,12 +10,9 @@ import { appConfig } from '../config/appConfig';
  *   'api'     -> POST to your own backend endpoint.
  *   'console' -> log only (local testing).
  *
- * EmailJS is used via its REST endpoint so we don't need a native SDK. You
- * configure it entirely from environment variables:
- *   EXPO_PUBLIC_EMAILJS_SERVICE_ID
- *   EXPO_PUBLIC_EMAILJS_TEMPLATE_ID
- *   EXPO_PUBLIC_EMAILJS_PUBLIC_KEY
- *   EXPO_PUBLIC_SHOP_OWNER_EMAIL   (where orders are sent)
+ * EmailJS is used via its REST endpoint so we don't need a native SDK. Set
+ * the service ID, template ID, and public key in the constants below.
+ * The order recipient is configured in ORDER_RECIPIENT.
  *
  * If nothing is configured, the service falls back to 'console' so the app
  * never crashes during development.
@@ -54,14 +51,17 @@ export interface OrderResult {
 }
 
 const EMAILJS_ENDPOINT = 'https://api.emailjs.com/api/v1.0/email/send';
+const ORDER_RECIPIENT = 'graincraftinfo@gmail.com';
+const EMAILJS_SERVICE_ID = 'service_v6k2zko';
+const EMAILJS_TEMPLATE_ID = 'template_wnjp20r';
+const EMAILJS_PUBLIC_KEY = 'cwajFkq2huDm2-0g-';
 
 class OrderEmailService {
   private get env() {
     return {
-      serviceId: process.env.EXPO_PUBLIC_EMAILJS_SERVICE_ID,
-      templateId: process.env.EXPO_PUBLIC_EMAILJS_TEMPLATE_ID,
-      publicKey: process.env.EXPO_PUBLIC_EMAILJS_PUBLIC_KEY,
-      ownerEmail: process.env.EXPO_PUBLIC_SHOP_OWNER_EMAIL,
+      serviceId: EMAILJS_SERVICE_ID,
+      templateId: EMAILJS_TEMPLATE_ID,
+      publicKey: EMAILJS_PUBLIC_KEY,
       apiUrl: process.env.EXPO_PUBLIC_ORDER_API_URL,
     };
   }
@@ -129,27 +129,39 @@ class OrderEmailService {
   }
 
   private async sendViaEmailJs(order: SimpleOrder): Promise<OrderResult> {
-    const { serviceId, templateId, publicKey, ownerEmail } = this.env;
+    const { serviceId, templateId, publicKey } = this.env;
 
     if (!serviceId || !templateId || !publicKey) {
       // Not configured yet - fall back so the flow still works in dev.
+      const missingSettings = [
+        !serviceId && 'Service ID',
+        !templateId && 'Template ID',
+        !publicKey && 'Public Key',
+      ].filter(Boolean).join(', ');
       this.logToConsole(order);
       return {
         success: false,
         channel: 'email',
-        error:
-          'EmailJS is not configured. Set EXPO_PUBLIC_EMAILJS_* env vars (see INTEGRATIONS.md).',
+        error: `EmailJS setup incomplete. Missing: ${missingSettings}. Add the values in src/services/orderEmailService.ts and rebuild the app.`,
       };
     }
 
     const summary = this.buildSummary(order);
     const itemsText = order.items
-      .map(i => `${i.name} (${i.quantity} kg)`)
-      .join(', ');
+      .map(
+        i =>
+          `- ${i.name}: ${i.quantity} kg × ${appConfig.currencySymbol}${i.price.toFixed(2)}/kg = ${appConfig.currencySymbol}${(
+            i.price * i.quantity
+          ).toFixed(2)}`
+      )
+      .join('\n');
 
     // These keys map to variables inside your EmailJS template.
     const templateParams = {
-      to_email: ownerEmail || '',
+      to_email: ORDER_RECIPIENT,
+      name: `${appConfig.shopName} Order`,
+      time: order.placedAt,
+      message: summary,
       shop_name: appConfig.shopName,
       order_summary: summary,
       items: itemsText,

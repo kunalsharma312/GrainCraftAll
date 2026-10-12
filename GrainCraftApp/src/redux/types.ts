@@ -22,11 +22,25 @@ export interface Address {
   state: string;
 }
 
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  city: string;
+  state: string;
+  country: string;
+  postalCode?: string | null;
+  address?: string | null;
+  accuracy?: number;
+  timestamp: number;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   isGuest: boolean;
   user: UserProfile | null;
   addresses: Address[];
+  location: LocationData | null;
+  mobilePhone?: string;
 }
 
 export interface CartItem {
@@ -35,6 +49,7 @@ export interface CartItem {
   subtitle: string;
   price: number;
   quantity: number;
+  unit?: 'kg' | 'g'; // kg or grams (default: kg)
   components?: string[];
   image?: string;
 }

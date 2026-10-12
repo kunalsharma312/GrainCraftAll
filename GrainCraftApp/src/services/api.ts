@@ -153,6 +153,25 @@ class ApiService {
   }
 
   /**
+   * Get discover items filtered by location (city/state)
+   */
+  async getDiscoverItemsByLocation(
+    city: string,
+    state: string,
+    page = 1,
+    pageSize = 20
+  ): Promise<DiscoverItemsResponse> {
+    try {
+      const response = await this.client.get<DiscoverItemsResponse>('/products/by-location', {
+        params: { city, state, page, pageSize },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error as AxiosError);
+    }
+  }
+
+  /**
    * Get single discover item details
    */
   async getDiscoverItem(id: string): Promise<DiscoverItem> {
@@ -393,6 +412,37 @@ class ApiService {
   async loginAsGuest(): Promise<{ user: UserProfile; token: string }> {
     try {
       const response = await this.client.post<{ user: UserProfile; token: string }>('/auth/guest');
+      const { token: authToken } = response.data;
+      this.setAuthToken(authToken);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error as AxiosError);
+    }
+  }
+
+  /**
+   * Request OTP for mobile number
+   */
+  async requestOTP(phoneNumber: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.client.post<{ success: boolean; message: string }>('/auth/request-otp', {
+        phone: phoneNumber,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error as AxiosError);
+    }
+  }
+
+  /**
+   * Verify OTP and login
+   */
+  async verifyOTP(phoneNumber: string, otp: string): Promise<{ success: boolean; user: UserProfile; token: string; message?: string }> {
+    try {
+      const response = await this.client.post<{ success: boolean; user: UserProfile; token: string; message?: string }>('/auth/verify-otp', {
+        phone: phoneNumber,
+        otp: otp,
+      });
       const { token: authToken } = response.data;
       this.setAuthToken(authToken);
       return response.data;

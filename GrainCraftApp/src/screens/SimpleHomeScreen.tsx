@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  Image,
   TouchableOpacity,
   Modal,
   TextInput,
@@ -24,10 +25,8 @@ import {
   clearCart,
 } from '../redux/slices/cartSlice';
 import mockData from '../assets/mockData.json';
-import grainImageFallbacks from '../assets/grainImageFallbacks';
 import { appConfig } from '../config/appConfig';
 import { featureFlags } from '../config/featureFlags';
-import RemoteImageWithFallback from '../components/RemoteImageWithFallback';
 import hapticsService from '../services/hapticsService';
 import orderEmailService, { SimpleOrder } from '../services/orderEmailService';
 
@@ -136,6 +135,7 @@ export default function SimpleHomeScreen() {
           subtitle: grain.subtitle,
           price: grain.price,
           image: grain.image,
+          unit: 'kg', // Default to kg
         })
       );
       dispatch(setItemQuantity({ id: grain.id, quantity: BULK_STEP }));
@@ -180,6 +180,7 @@ export default function SimpleHomeScreen() {
         name: i.name,
         price: i.price,
         quantity: i.quantity,
+        unit: i.unit || 'kg',
       })),
       customer: {
         address: address.trim(),
@@ -230,12 +231,7 @@ export default function SimpleHomeScreen() {
     return (
       <View style={[styles.card, inCart && styles.cardActive]}>
         <View>
-          <RemoteImageWithFallback
-            uri={item.image}
-            fallbackSource={grainImageFallbacks[item.id] ?? grainImageFallbacks['w-mp-sharbati']}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
           <View style={styles.imageScrim} />
           {/* Veg mark - grains are always veg, adds a familiar Indian-grocery cue */}
           <View style={styles.vegMark}>
@@ -343,9 +339,8 @@ export default function SimpleHomeScreen() {
           <View>
             {/* Featured hero card */}
             <View style={styles.featuredCard}>
-              <RemoteImageWithFallback
-                uri={appConfig.hero.image}
-                fallbackSource={grainImageFallbacks['w-mp-sharbati']}
+              <Image
+                source={{ uri: appConfig.hero.image }}
                 style={styles.featuredImage}
                 resizeMode="cover"
               />

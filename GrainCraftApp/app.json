@@ -5,10 +5,12 @@
     "scheme": "com.graincraftapp.mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "android", "web"],
     "android": {
       "package": "com.graincraftapp.mobile",
       "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
         "USE_BIOMETRIC",
         "USE_FINGERPRINT",
         "VIBRATE",
@@ -45,6 +47,12 @@
         "expo-notifications",
         {
           "color": "#2E7D32"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "GrainCraft uses your location to show available deliveries near you."
         }
       ]
     ]
