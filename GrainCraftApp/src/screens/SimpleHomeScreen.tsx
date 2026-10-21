@@ -57,6 +57,7 @@ function tapFeedback() {
 export default function SimpleHomeScreen() {
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector(state => state.cart.items);
+  const location = useAppSelector(state => state.auth.location);
 
   const [formVisible, setFormVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -84,12 +85,22 @@ export default function SimpleHomeScreen() {
     return map;
   }, [cartItems]);
 
+  const stateGrains = useMemo(
+    () =>
+      location?.state
+      ? grains.filter(
+          grain => grain.state?.trim().toLowerCase() === location.state.trim().toLowerCase()
+        )
+      : grains,
+    [location?.state]
+  );
+
   const visibleGrains = useMemo(
     () =>
       activeCategory === 'all'
-        ? grains
-        : grains.filter(g => (g.category || 'flour') === activeCategory),
-    [activeCategory]
+        ? stateGrains
+        : stateGrains.filter(grain => (grain.category || 'flour') === activeCategory),
+    [activeCategory, stateGrains]
   );
 
   const handleAdd = (grain: Grain) => {
@@ -335,6 +346,13 @@ export default function SimpleHomeScreen() {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.emptyStateMessage}>
+            {stateGrains.length === 0
+              ? 'We will operate soon in your area.'
+              : 'No products in this category.'}
+          </Text>
+        }
         ListHeaderComponent={
           <View>
             {/* Featured hero card */}
@@ -662,6 +680,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { fontSize: 19, fontWeight: '800', color: C.text },
   sectionCount: { fontSize: 12, color: C.textMuted, fontWeight: '600' },
+  emptyStateMessage: {
+    color: C.textMuted,
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+    paddingVertical: 32,
+    paddingHorizontal: 16,
+  },
 
   // ---- Product card ----
   card: {
