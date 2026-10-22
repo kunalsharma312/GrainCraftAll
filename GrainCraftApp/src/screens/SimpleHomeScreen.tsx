@@ -45,6 +45,25 @@ interface Grain {
 const grains: Grain[] = (mockData as any).grains || [];
 const C = appConfig.colors;
 const money = (n: number) => `${appConfig.currencySymbol}${n.toFixed(0)}`;
+
+function normalizeStateName(state: string): string {
+  const normalized = state
+    .split(',')[0]
+    .trim()
+    .toLowerCase()
+    .replace(/^state of\s+/, '')
+    .replace(/\s+state$/, '')
+    .replace(/[.\s_-]+/g, '');
+
+  const aliases: Record<string, string> = {
+    pb: 'punjab',
+    mp: 'madhyapradesh',
+    up: 'uttarpradesh',
+  };
+
+  return aliases[normalized] || normalized;
+}
+
 /** Quick bulk-add step (kg) shown as a "+5" button for large orders. */
 const BULK_STEP = 5;
 
@@ -89,7 +108,9 @@ export default function SimpleHomeScreen() {
     () =>
       location?.state
       ? grains.filter(
-          grain => grain.state?.trim().toLowerCase() === location.state.trim().toLowerCase()
+            grain =>
+              grain.state &&
+              normalizeStateName(grain.state) === normalizeStateName(location.state)
         )
       : grains,
     [location?.state]
@@ -347,11 +368,18 @@ export default function SimpleHomeScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text style={styles.emptyStateMessage}>
-            {stateGrains.length === 0
-              ? 'We will operate soon in your area.'
-              : 'No products in this category.'}
-          </Text>
+          <View style={styles.emptyStateWrap}>
+            <Text style={styles.emptyStateMessage}>
+              {stateGrains.length === 0
+                ? 'We will operate soon in your area.'
+                : 'No products in this category.'}
+            </Text>
+            {stateGrains.length === 0 && location?.state ? (
+              <Text style={styles.emptyStateDetail}>
+                No grains are listed for detected state: {location.state}.
+              </Text>
+            ) : null}
+          </View>
         }
         ListHeaderComponent={
           <View>
@@ -680,13 +708,22 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { fontSize: 19, fontWeight: '800', color: C.text },
   sectionCount: { fontSize: 12, color: C.textMuted, fontWeight: '600' },
+  emptyStateWrap: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    paddingHorizontal: 16,
+  },
   emptyStateMessage: {
     color: C.textMuted,
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 16,
+  },
+  emptyStateDetail: {
+    color: C.textMuted,
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
   },
 
   // ---- Product card ----

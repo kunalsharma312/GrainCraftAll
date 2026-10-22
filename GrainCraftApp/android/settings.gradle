@@ -163,6 +163,10 @@ if (getRNMinorVersion(nodeCmd, nodeEnvMap) >= 75) {
 
 rootProject.name = 'GrainCraft'
 
+// Expo's autolinking implementation starts Node by name; Android Studio may
+// launch Gradle without the shell PATH, so pass the resolved executable directly.
+System.setProperty("NODE_BINARY", nodeCmd)
+
 dependencyResolutionManagement {
   versionCatalogs {
     reactAndroidLibs {
@@ -171,7 +175,7 @@ dependencyResolutionManagement {
   }
 }
 
-apply from: new File([nodeCmd, "--print", "require.resolve('expo/package.json')"].execute(nodeEnv, rootDir).text.trim(), "../scripts/autolinking.gradle");
+apply from: new File([nodeCmd, "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })"].execute(nodeEnv, rootDir).text.trim(), "../scripts/android/autolinking_implementation.gradle");
 useExpoModules()
 
 if (getRNMinorVersion(nodeCmd, nodeEnvMap) < 75) {
