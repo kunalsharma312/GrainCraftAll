@@ -1,8 +1,11 @@
 import { useCallback } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { Alert, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { fetchOrders } from '../redux/slices/orderSlice';
+import { replaceCart } from '../redux/slices/cartSlice';
+import type { MainTabParamList } from '../redux/types';
 import theme from '../theme';
 import Text from '../components/ThemedText';
 import AppScreen from '../components/ui/AppScreen';
@@ -13,9 +16,12 @@ import { EmptyStateFallback } from '../components/ui/EmptyStateFallback';
 import { AnimatedComponent } from '../components/ui/AnimatedComponent';
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function OrdersScreen() {
+type Props = BottomTabScreenProps<MainTabParamList, 'Orders'>;
+
+export default function OrdersScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const { orders, loading, error } = useAppSelector(state => state.orders);
+  const cartItems = useAppSelector(state => state.cart.items);
 
   useFocusEffect(
     useCallback(() => {
@@ -25,6 +31,37 @@ export default function OrdersScreen() {
 
   const handleRetry = () => {
     dispatch(fetchOrders());
+  };
+
+  const handleReorder = (order: (typeof orders)[number]) => {
+    const reorderItems = () => {
+      dispatch(
+        replaceCart(
+          order.items.map(item => ({
+            id: item.id,
+            name: item.name,
+            subtitle: 'Previously ordered',
+            price: item.price,
+            quantity: item.quantity,
+          }))
+        )
+      );
+      navigation.navigate('Cart');
+    };
+
+    if (cartItems.length > 0) {
+      Alert.alert(
+        'Replace current basket?',
+        'Reordering will replace the items currently in your basket.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Replace basket', onPress: reorderItems },
+        ]
+      );
+      return;
+    }
+
+    reorderItems();
   };
 
   if (loading && orders.length === 0) {
@@ -73,7 +110,7 @@ export default function OrdersScreen() {
     <AppScreen style={{ flex: 1, padding: 0 }}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
         <AnimatedComponent type="slideInDown" duration={400}>
-          <SectionHeading title="Orders & Dispatches" />
+          <SectionHeading title="Order History" />
         </AnimatedComponent>
 
         {error && (
@@ -127,6 +164,10 @@ export default function OrdersScreen() {
 
                   <Text style={styles.orderTitle}>{order.title}</Text>
 
+                  <Text style={styles.itemsSummary}>
+                    {order.items.map(item => `${item.name} × ${item.quantity}`).join('  ·  ')}
+                  </Text>
+
                   <View style={styles.millBox}>
                     <MaterialIcons name="engineering" size={16} color={theme.colors.primary} />
                     <Text style={styles.millInfo}>{order.millInfo}</Text>
@@ -148,6 +189,17 @@ export default function OrdersScreen() {
                     <Text style={styles.totalLabel}>Total:</Text>
                     <Text style={styles.totalAmount}>${order.total.toFixed(2)}</Text>
                   </View>
+
+                  {order.items.length > 0 && (
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      onPress={() => handleReorder(order)}
+                      style={styles.reorderButton}
+                    >
+                      <MaterialIcons name="replay" size={18} color={theme.colors.primary} />
+                      <Text style={styles.reorderButtonText}>Reorder</Text>
+                    </TouchableOpacity>
+                  )}
                 </AppCard>
               </AnimatedComponent>
             ))}
@@ -197,6 +249,27 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.fontWeight.medium,
     color: theme.colors.text,
     marginBottom: 12,
+  },
+  itemsSummary: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.fontSize.small,
+    marginBottom: 12,
+  },
+  reorderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  reorderButtonText: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSize.body,
+    fontWeight: theme.typography.fontWeight.bold,
   },
   millBox: {
     flexDirection: 'row',

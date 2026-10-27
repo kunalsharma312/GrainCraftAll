@@ -14,7 +14,8 @@ import CartScreen from '../screens/CartScreen';
 import OrdersScreen from '../screens/OrdersScreen';
 import { OrderConfirmationScreen } from '../screens/OrderConfirmationScreen';
 import theme from '../theme';
-import { useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { fetchOrders } from '../redux/slices/orderSlice';
 import type { MainTabParamList, RootStackParamList } from '../redux/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,8 +30,14 @@ const tabIcons: Record<keyof MainTabParamList, { focused: IoniconName; unfocused
 };
 
 function MainTabNavigator() {
+  const dispatch = useAppDispatch();
   const cartItems = useAppSelector(state => state.cart.items);
+  const orders = useAppSelector(state => state.orders.orders);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   return (
     <Tab.Navigator
@@ -62,7 +69,13 @@ function MainTabNavigator() {
       <Tab.Screen name="Discover" component={DiscoverScreen} />
       <Tab.Screen name="Blend" component={BlendScreen} />
       <Tab.Screen name="Cart" component={CartScreen} options={{ tabBarBadge: cartCount > 0 ? cartCount : undefined }} />
-      <Tab.Screen name="Orders" component={OrdersScreen} />
+      {orders.length > 0 && (
+        <Tab.Screen
+          name="Orders"
+          component={OrdersScreen}
+          options={{ tabBarLabel: 'Order History' }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

@@ -67,6 +67,11 @@ const cartSlice = createSlice({
     restoreCart: (state, action: PayloadAction<CartItem[]>) => {
       state.items = action.payload;
     },
+
+    replaceCart: (state, action: PayloadAction<CartItem[]>) => {
+      state.items = action.payload;
+      cartService.saveCart(state.items);
+    },
   },
 });
 
@@ -78,6 +83,7 @@ export const {
   removeFromCart,
   clearCart,
   restoreCart,
+  replaceCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   addToCart,
@@ -23,6 +24,7 @@ import {
   removeFromCart,
   setItemQuantity,
   clearCart,
+  replaceCart,
 } from '../redux/slices/cartSlice';
 import mockData from '../assets/mockData.json';
 import { appConfig } from '../config/appConfig';
@@ -45,6 +47,11 @@ interface Grain {
 const grains: Grain[] = (mockData as any).grains || [];
 const C = appConfig.colors;
 const money = (n: number) => `${appConfig.currencySymbol}${n.toFixed(0)}`;
+const ORDER_HISTORY_STORAGE_KEY = 'graincraftapp.simple-order-history.v1';
+
+interface StoredSimpleOrder extends SimpleOrder {
+  id: string;
+}
 
 function normalizeStateName(state: string): string {
   const normalized = state
@@ -81,6 +88,16 @@ export default function SimpleHomeScreen() {
   const [formVisible, setFormVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [orderHistory, setOrderHistory] = useState<StoredSimpleOrder[]>([]);
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(ORDER_HISTORY_STORAGE_KEY)
+      .then(saved => {
+        if (saved) setOrderHistory(JSON.parse(saved) as StoredSimpleOrder[]);
+      })
+      .catch(error => console.warn('Could not load order history:', error));
+  }, []);
 
   // Order form fields
   const [address, setAddress] = useState('');
@@ -228,6 +245,17 @@ export default function SimpleHomeScreen() {
     const result = await orderEmailService.placeOrder(order);
     setSubmitting(false);
 
+    const savedOrder: StoredSimpleOrder = {
+      ...order,
+      id: `ORD-${Date.now()}`,
+      placedAt: new Date().toISOString(),
+    };
+    const updatedOrderHistory = [savedOrder, ...orderHistory];
+    setOrderHistory(updatedOrderHistory);
+    AsyncStorage.setItem(ORDER_HISTORY_STORAGE_KEY, JSON.stringify(updatedOrderHistory)).catch(error =>
+      console.warn('Could not save order history:', error)
+    );
+
     if (result.success) {
       if (featureFlags.ENABLE_HAPTICS) hapticsService.notify('success');
       dispatch(clearCart());
@@ -254,6 +282,18 @@ export default function SimpleHomeScreen() {
       dispatch(clearCart());
       setFormVisible(false);
     }
+  };
+
+  const openCheckout = (order?: StoredSimpleOrder) => {
+    const addressOrder = order || orderHistory[0];
+    if (addressOrder) {
+      setAddress(addressOrder.customer.address);
+      setPincode(addressOrder.customer.pincode);
+      setMobile(addressOrder.customer.mobile);
+      setErrors({});
+    }
+    setShowOrderHistory(false);
+    setFormVisible(true);
   };
 
   const renderGrain = ({ item }: { item: Grain }) => {
@@ -342,6 +382,70 @@ export default function SimpleHomeScreen() {
     );
   };
 
+  if (showOrderHistory) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top']}>
+        <View style={styles.historyHeader}>
+          <TouchableOpacity
+            onPress={() => setShowOrderHistory(false)}
+            style={styles.historyBackButton}
+            accessibilityRole="button"
+          >
+            <Text style={styles.historyBackText}>‹  Shop</Text>
+          </TouchableOpacity>
+          <Text style={styles.historyTitle}>Order History</Text>
+          <View style={styles.historyHeaderSpacer} />
+        </View>
+        <ScrollView contentContainerStyle={styles.historyList}>
+          {orderHistory.map(order => (
+            <View key={order.id} style={styles.historyCard}>
+              <View style={styles.historyOrderTop}>
+                <View>
+                  <Text style={styles.historyOrderId}>{order.id}</Text>
+                  <Text style={styles.historyDate}>
+                    {new Date(order.placedAt).toLocaleDateString('en-IN', {
+                      year: 'numeric', month: 'short', day: 'numeric',
+                    })}
+                  </Text>
+                </View>
+                <Text style={styles.historyStatus}>Submitted</Text>
+              </View>
+              {order.items.map(item => (
+                <View key={item.id} style={styles.historyItemRow}>
+                  <Text style={styles.historyItemName}>
+                    {item.name} × {item.quantity} {item.unit || 'kg'}
+                  </Text>
+                  <Text style={styles.historyItemPrice}>{money(item.price * item.quantity)}</Text>
+                </View>
+              ))}
+              <View style={styles.historyTotalRow}>
+                <Text style={styles.historyTotalLabel}>Total</Text>
+                <Text style={styles.historyTotalValue}>{money(order.total)}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.historyReorderButton}
+                accessibilityRole="button"
+                onPress={() => {
+                  dispatch(
+                    replaceCart(
+                      order.items.map(item => ({
+                        ...item,
+                        subtitle: grains.find(grain => grain.id === item.id)?.subtitle || 'Previously ordered',
+                      }))
+                    )
+                  );
+                  openCheckout(order);
+                }}
+              >
+                <Text style={styles.historyReorderText}>Reorder</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* Hero header */}
@@ -351,9 +455,19 @@ export default function SimpleHomeScreen() {
             <Text style={styles.heroHello}>Namaste 🙏</Text>
             <Text style={styles.shopName}>{appConfig.shopName}</Text>
           </View>
-          <View style={styles.heroPill}>
-            <Text style={styles.heroPillText}>🚚 Same-day</Text>
-          </View>
+          {orderHistory.length > 0 ? (
+            <TouchableOpacity
+              style={styles.orderHistoryTab}
+              onPress={() => setShowOrderHistory(true)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.orderHistoryTabText}>📦 Order History</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.heroPill}>
+              <Text style={styles.heroPillText}>🚚 Same-day</Text>
+            </View>
+          )}
         </View>
         <Text style={styles.tagline}>{appConfig.tagline}</Text>
       </View>
@@ -460,7 +574,7 @@ export default function SimpleHomeScreen() {
           style={styles.cartBar}
           onPress={() => {
             tapFeedback();
-            setFormVisible(true);
+            openCheckout();
           }}
         >
           <View style={styles.cartBarLeft}>
@@ -610,6 +724,72 @@ export default function SimpleHomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.background },
+  orderHistoryTab: {
+    backgroundColor: C.surface,
+    borderWidth: 1,
+    borderColor: C.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+  orderHistoryTabText: { color: C.primary, fontSize: 12, fontWeight: '800' },
+  historyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    backgroundColor: C.heroTint,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+  },
+  historyBackButton: { minWidth: 70 },
+  historyBackText: { color: C.primary, fontSize: 15, fontWeight: '800' },
+  historyTitle: { color: C.text, fontSize: 18, fontWeight: '900' },
+  historyHeaderSpacer: { minWidth: 70 },
+  historyList: { padding: appConfig.layout.spacing, paddingBottom: 32 },
+  historyCard: {
+    backgroundColor: C.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 16,
+    marginBottom: 14,
+  },
+  historyOrderTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingBottom: 12,
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+  },
+  historyOrderId: { color: C.text, fontSize: 15, fontWeight: '900' },
+  historyDate: { color: C.textMuted, fontSize: 12, marginTop: 4 },
+  historyStatus: { color: C.success, fontSize: 12, fontWeight: '800' },
+  historyItemRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 7 },
+  historyItemName: { color: C.text, fontSize: 13, flex: 1, marginRight: 8 },
+  historyItemPrice: { color: C.text, fontSize: 13, fontWeight: '700' },
+  historyTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 12,
+    marginTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+  },
+  historyTotalLabel: { color: C.text, fontSize: 14, fontWeight: '800' },
+  historyTotalValue: { color: C.primary, fontSize: 15, fontWeight: '900' },
+  historyReorderButton: {
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: C.primary,
+    borderRadius: 10,
+    paddingVertical: 11,
+    marginTop: 14,
+  },
+  historyReorderText: { color: C.primary, fontSize: 14, fontWeight: '900' },
 
   // ---- Hero header ----
   hero: {

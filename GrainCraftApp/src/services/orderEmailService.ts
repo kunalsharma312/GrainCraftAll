@@ -23,6 +23,7 @@ export interface SimpleOrderItem {
   name: string;
   price: number;
   quantity: number;
+  unit?: 'kg' | 'g';
 }
 
 export interface SimpleCustomer {
